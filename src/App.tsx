@@ -4,6 +4,7 @@ import LandingHero from "./components/LandingHero";
 import TranslatorCard from "./components/TranslatorCard";
 import InstructionsGuide from "./components/InstructionsGuide";
 import ArchitectureDocs from "./components/ArchitectureDocs";
+import InstallPrompt from "./components/InstallPrompt";
 
 export default function App() {
   const [showWorkspace, setShowWorkspace] = useState<boolean>(false);
@@ -103,6 +104,9 @@ export default function App() {
               setActiveTab("workspace");
             }} />
             <InstructionsGuide />
+            
+            {/* Install Prompt Mobile Companion Section */}
+            <InstallPrompt />
             
             {/* Direct Static Reference container */}
             <div className="max-w-4xl mx-auto px-4 mt-8">
