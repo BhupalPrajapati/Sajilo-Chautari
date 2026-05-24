@@ -317,6 +317,16 @@ async function runServer() {
     console.log("Starting server in PRODUCTION mode...");
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
+    
+    // Guard: Do not fall back to index.html for static assets (helps debuggers/crawlers detect missing files correctly)
+    app.get("*", (req, res, next) => {
+      const ext = path.extname(req.path);
+      if (ext && ext !== ".html") {
+        return res.status(404).send("Not Found");
+      }
+      next();
+    });
+
     // Serve client static assets
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
