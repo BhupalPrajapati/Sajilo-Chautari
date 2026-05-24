@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-primary: #10B981; /* Emerald Green */
+  --color-brand-primary-hover: #059669;
+  --color-brand-accent: #F59E0B; /* Warm Amber - reflects Nepali solar themes */
+  --color-nepal-blue: #1E3A8A; /* Crimson/Blue of Nepali national flag */
+  --color-nepal-crimson: #DC2626;
+}
+
+/* Custom base styles for accessibility and theme pairing */
+body {
+  font-family: var(--font-sans);
+  background-color: #F8FAFC; /* Clean, soft warm white */
+  color: #1E293B; /* High-contrast charcoal */
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+.mono-tag {
+  font-family: var(--font-mono);
+}
+
+/* Custom pulse animations for recording nodes */
+@keyframes recordPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
+  }
+}
+
+.animate-record-pulse {
+  animation: recordPulse 2s infinite ease-in-out;
+}
+
+@keyframes signalRipple {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-signal-ripple {
+  animation: signalRipple 1.8s infinite cubic-bezier(0.24, 0, 0.38, 1);
+}

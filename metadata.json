@@ -1,0 +1,6 @@
+{
+  "name": "Nepali Speech Translator",
+  "description": "AI-powered multilingual speech translation helping rural Nepali people communicate with foreigners.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
