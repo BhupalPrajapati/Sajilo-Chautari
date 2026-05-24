@@ -2,7 +2,7 @@ const CACHE_NAME = 'sajilo-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/sajilo_icon.jpg',
+  '/sajilo_icon.png',
   '/manifest.json'
 ];
 
