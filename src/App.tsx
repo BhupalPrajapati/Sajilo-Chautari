@@ -16,6 +16,11 @@ export default function App() {
     const pingHealth = async () => {
       try {
         const response = await fetch("/health");
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          setSystemConnected(false);
+          return;
+        }
         const data = await response.json();
         if (data.status === "ok") {
           setSystemConnected(true);

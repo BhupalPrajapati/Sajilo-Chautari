@@ -130,7 +130,7 @@ export default function InstallPrompt() {
                     <span className="h-2 w-2 rounded-full bg-green-400"></span>
                   </div>
                   <div className="bg-slate-900/40 rounded-lg p-2.5 inline-flex items-center gap-2 max-w-[200px] mx-auto border border-white/5">
-                    <img src="/sajilo_icon.png" alt="Sajilo" className="h-7 w-7 rounded-md shadow" referrerPolicy="no-referrer" />
+                    <img src="/sajilo_icon.jpg" alt="Sajilo" className="h-7 w-7 rounded-md shadow" referrerPolicy="no-referrer" />
                     <span className="text-xs font-bold text-white tracking-tight truncate">Sajilo App</span>
                   </div>
                 </div>

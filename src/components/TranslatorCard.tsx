@@ -160,8 +160,14 @@ export default function TranslatorCard() {
         body: formData,
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("The translation server returned an unexpected non-JSON response (HTML page). If you are running on Render, ensure your full-stack Node server is started correctly instead of hosting static files only.");
+      }
+
       if (!response.ok) {
-        throw new Error(`Server returned error ${response.status}: Failed to process translation.`);
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server returned error ${response.status}: Failed to process translation.`);
       }
 
       const data = await response.json();
@@ -214,8 +220,14 @@ export default function TranslatorCard() {
         }),
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("The translation server returned an unexpected non-JSON response (HTML page). If you are running on Render, ensure your full-stack Node server is started correctly instead of hosting static files only.");
+      }
+
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -315,7 +327,19 @@ export default function TranslatorCard() {
           }),
         });
         
-        if (!response.ok) throw new Error("Server TTS unavailable");
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("The translation server returned an unexpected non-JSON response (HTML page) for Speech Synthesis.");
+        }
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          if (response.status === 429 || errData.code === "QUOTA_EXCEEDED") {
+            setUseServerTts(false); // Switch to offline client-side TTS automatically!
+            throw new Error("Gemini Speech synthesis quota limit exceeded. Switching to device synthesis.");
+          }
+          throw new Error(errData.error || `Server TTS returned status ${response.status}`);
+        }
         const data = await response.json();
         
         if (data.audio) {
@@ -356,8 +380,12 @@ export default function TranslatorCard() {
         } else {
           throw new Error("No audio returned");
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Server-side TTS failed, using client-side synthesis instead.", err);
+        const errString = String(err.message || "").toLowerCase();
+        if (errString.includes("quota") || errString.includes("limit") || errString.includes("429")) {
+          setErrorString("Gemini Speech free tier daily quota (10 requests/day) reached! Sajilo has dynamically switched you to 'OFFLINE LIGHT' device-to-speech synthesis for uninterrupted voice support.");
+        }
         triggerClientSpeechSynthesis(speechText, langCode);
       }
     } else {

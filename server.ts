@@ -270,6 +270,20 @@ app.post("/api/tts", async (req: any, res: any) => {
     return res.json({ audio: base64Audio, mimeType: mimeType });
   } catch (err: any) {
     console.error("TTS API Error (Falling back to client-side synthesis):", err);
+    const errString = String(err.message || "").toLowerCase();
+    const isQuotaExceeded = 
+      err.status === 429 || 
+      err.statusCode === 429 ||
+      errString.includes("429") || 
+      errString.includes("quota") || 
+      errString.includes("exhausted");
+      
+    if (isQuotaExceeded) {
+      return res.status(429).json({
+        error: "Gemini Speech synthesis daily limit reached (10 free requests per day limit of the free tier). Sajilo has automatically enabled offline local device-synthesis for uninterrupted voice support.",
+        code: "QUOTA_EXCEEDED"
+      });
+    }
     return res.status(500).json({ error: err.message || "Failed to generate audio" });
   }
 });
