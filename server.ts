@@ -305,7 +305,82 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 // Mount Vite middleware for development or serve built client static assets for production
+async function ensurePwaIcons() {
+  try {
+    const publicPath = path.join(process.cwd(), "public");
+    const distPath = path.join(process.cwd(), "dist");
+
+    const targets = [
+      { name: "sajilo_icon_192.png", size: 192 },
+      { name: "sajilo_icon_512.png", size: 512 },
+      { name: "sajilo_icon.png", size: 512 }
+    ];
+
+    // Check if we need to generate any of them
+    let needsGen = false;
+    for (const target of targets) {
+      const pubExist = fs.existsSync(path.join(publicPath, target.name));
+      const distExist = fs.existsSync(path.join(distPath, target.name));
+      if (!pubExist || !distExist) {
+        needsGen = true;
+        break;
+      }
+    }
+
+    if (!needsGen) {
+      console.log("[PWA Icons Check] All target icons exist on disk.");
+      return;
+    }
+
+    const sourceJpg = path.join(publicPath, "sajilo_icon.jpg");
+    if (!fs.existsSync(sourceJpg)) {
+      console.warn(`[PWA Icons Generator] Main source is missing at ${sourceJpg}. Cannot verify dynamic fallback.`);
+      return;
+    }
+
+    console.log("[PWA Icons Generator] Launching auto-conversion for missing PWA icons on server boot...");
+    let JimpModule;
+    try {
+      JimpModule = await import("jimp");
+    } catch (e) {
+      console.warn("[PWA Icons Generator] Could not import jimp module:", e);
+    }
+
+    const Jimp = JimpModule?.Jimp || JimpModule?.default;
+    if (!Jimp) {
+      console.error("[PWA Icons Generator] Jimp could not be resolved! Auto-conversion aborted.");
+      return;
+    }
+
+    const baseImage = await Jimp.read(sourceJpg);
+
+    // Ensure target directories exist
+    if (!fs.existsSync(publicPath)) {
+      fs.mkdirSync(publicPath, { recursive: true });
+    }
+    if (!fs.existsSync(distPath)) {
+      fs.mkdirSync(distPath, { recursive: true });
+    }
+
+    for (const target of targets) {
+      const pubFile = path.join(publicPath, target.name);
+      const distFile = path.join(distPath, target.name);
+
+      console.log(`[PWA Icons Generator] Generating physical icon: ${target.name} (${target.size}x${target.size})`);
+      const targetImage = baseImage.clone().resize({ w: target.size, h: target.size });
+      await targetImage.write(pubFile);
+      await targetImage.write(distFile);
+    }
+    console.log("[PWA Icons Generator] All PWA icons generated successfully on the fly!");
+  } catch (err) {
+    console.error("[PWA Icons Generator] Failed to run icon generator pipeline:", err);
+  }
+}
+
 async function runServer() {
+  // Ensure PWA Icons exist on boot
+  await ensurePwaIcons();
+
   if (process.env.NODE_ENV !== "production") {
     console.log("Starting server in DEVELOPMENT mode with Vite Middleware...");
     const vite = await createViteServer({
